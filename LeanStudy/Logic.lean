@@ -5,8 +5,13 @@ variable {α : Type*} (P : α → Prop) (Q : Prop)
 
 --To prove `¬ P`, use the tactic `intro h` to introduce the hypothesis `h: P`. Then the goal becomes `False`.
 --To prove `P → Q`, use the tactic `intro h` to introduce the hypothesis `h: P`. Then the goal becomes `Q`.
---?To prove `P ∧ Q`, use the tactic `constructor` to split the goal into two subgoals: `P` and `Q`.
---?To prove `P ∨ Q`, use the tactic `left` or `right` to choose which disjunct to prove. Then the goal becomes `P` or `Q`.
+--To prove `P ∧ Q`, use the tactic `constructor` to split the goal into two subgoals: `P` and `Q`.
+--To prove `P ∨ Q`, use the tactic `left` or `right` to choose which disjunct to prove. Then the goal becomes `P` or `Q`.
+--To use `h: ¬ P`, use `apply h` to a goal which is `False`. then the goal becomes `P`.
+--To use `h: P → Q`, use `apply h` to a goal which is `Q`. Then the goal becomes `P`.
+--To use `h: P ∧ Q`, use `h.1: P` and `h.2: Q`
+--To use `h: P ∨ Q`, use `cases h` to destruct the disjunction. Then you can use `h_left` or `h_right` to refer to the left or right disjunct.
+
 
 --To prove `∀ x, P x`, use the tactic `intro x` to introduce the variable `x`. Then the goal becomes `P x`.
 --To prove `∃ x, P x`, use the tactic `use x` to introduce the witness `x`. Then the goal becomes `P x`.
