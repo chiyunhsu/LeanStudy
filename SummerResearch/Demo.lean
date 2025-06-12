@@ -2,7 +2,7 @@
 Demo file for Summer Research
 -/
 
-import mathlib
+import Mathlib
 
 -- The rewrite tactic `rw` is used to rewrite the goal using a lemma or theorem.
 
