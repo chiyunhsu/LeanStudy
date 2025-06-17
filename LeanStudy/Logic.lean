@@ -10,7 +10,7 @@ variable {α : Type*} (P : α → Prop) (Q : Prop)
 --To use `h: ¬ P`, use `apply h` to a goal which is `False`. then the goal becomes `P`.
 --To use `h: P → Q`, use `apply h` to a goal which is `Q`. Then the goal becomes `P`.
 --To use `h: P ∧ Q`, use `h.1: P` and `h.2: Q`
---To use `h: P ∨ Q`, use `cases h` to destruct the disjunction. Then you can use `h_left` or `h_right` to refer to the left or right disjunct.
+--To use `h: P ∨ Q`, use `rcases h with h1 | h2` to destruct the disjunction. Then use `h1 : P` or `h2 : Q` to refer to the left or right disjunct.
 
 
 --To prove `∀ x, P x`, use the tactic `intro x` to introduce the variable `x`. Then the goal becomes `P x`.
@@ -35,6 +35,8 @@ example (h : ∀ x, ¬P x) : ¬∃ x, P x := by
 --push_neg
 --exact h
 
+-- `by_contra` is a tactic that allows you to prove a goal by contradiction.
+-- It assumes the negation of the goal and tries to derive a contradiction.
 example (h : ¬∀ x, P x) : ∃ x, ¬P x := by
   by_contra h'
   apply h
