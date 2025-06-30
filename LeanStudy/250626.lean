@@ -1,7 +1,7 @@
 import Mathlib
 
 
-/- 5.2 Induction and -ecursion -/
+/- 5.2 Induction and recursion -/
 
 #check Nat
 
