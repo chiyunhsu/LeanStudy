@@ -1,7 +1,7 @@
 import Mathlib
 
 /- 3.6 Sequences and Convergence -/
-/- 25/6/23, 25/07/07 -/
+/- 25/6/23, 25/07/07, 25/07/13 -/
 
 def ConvergesTo (s : ℕ → ℝ) (a : ℝ) :=
   ∀ ε > 0, ∃ N, ∀ n ≥ N, |s n - a| < ε
@@ -107,3 +107,37 @@ theorem convergesTo_mul {s t : ℕ → ℝ} {a b : ℝ}
   convert convergesTo_add h₁ (convergesTo_mul_const b cs) using 1
   · ext; ring
   ring
+
+theorem convergesTo_unique {s : ℕ → ℝ} {a b : ℝ}
+      (sa : ConvergesTo s a) (sb : ConvergesTo s b) :
+    a = b := by
+  by_contra abne
+  have : |a - b| > 0 := by
+    have aminusb : a - b ≠ 0 := by
+      intro h
+      have : a = b := by linarith
+      contradiction
+    apply abs_pos.mpr aminusb
+  let ε := |a - b| / 2
+  have εpos : ε > 0 := by
+    change |a - b| / 2 > 0
+    linarith
+  rcases sa ε εpos with ⟨Na, hNa⟩
+  rcases sb ε εpos with ⟨Nb, hNb⟩
+  let N := max Na Nb
+  have absa : |s N - a| < ε := by
+    have : N ≥ Na := le_max_left Na Nb
+    exact hNa N this
+  have absb : |s N - b| < ε := by
+    have : N ≥ Nb := le_max_right Na Nb
+    exact hNb N this
+  have : |a - b| < |a - b| := by
+    calc
+      |a - b| = |(a - s N) + (s N - b)| := by congr; linarith
+      _ ≤ |a - s N| + |s N - b| := abs_add (a - s N) (s N - b)
+      _ = |- (s N - a)| + |s N - b| := by congr; linarith
+      _ = |s N - a| + |s N - b| := by rw [abs_neg (s N - a)]
+      _ < ε + ε :=  by linarith [absa, absb]
+      _ = |a - b| / 2 + |a - b| / 2 := by rfl
+      _ = |a - b| := by linarith
+  exact lt_irrefl _ this
