@@ -89,3 +89,10 @@ example : s \ (t ∪ u) ⊆ (s \ t) \ u := by
     apply xntu
     right; exact xu
   exact ⟨⟨xs, xnt⟩, xnu⟩
+
+example : s \ (t ∪ u) ⊆ (s \ t) \ u := by
+  rintro x ⟨xs, xntu⟩
+  exact ⟨⟨xs, xntu ∘ Or.inl⟩, xntu ∘ Or.inr⟩
+
+example (P Q : Prop) (h : ¬ (P ∨ Q)) : ¬ P :=
+  h ∘ Or.inl
