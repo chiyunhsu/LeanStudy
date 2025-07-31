@@ -1,7 +1,7 @@
 import Mathlib
 
 /- 3.6 Sequences and Convergence -/
-/- 25/6/23, 25/07/07, 25/07/13 -/
+/- 25/06/23, 25/07/07, 25/07/13 -/
 
 def ConvergesTo (s : ℕ → ℝ) (a : ℝ) :=
   ∀ ε > 0, ∃ N, ∀ n ≥ N, |s n - a| < ε

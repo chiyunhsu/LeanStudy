@@ -1,7 +1,7 @@
 import Mathlib
 
 /- 4.1 Sets -/
-/- 25/7/24 -/
+/- 25/07/24, 25/07/31 -/
 
 variable {α : Type*}
 variable (s t u : Set α)
@@ -96,3 +96,83 @@ example : s \ (t ∪ u) ⊆ (s \ t) \ u := by
 
 example (P Q : Prop) (h : ¬ (P ∨ Q)) : ¬ P :=
   h ∘ Or.inl
+
+example : s ∩ t = t ∩ s := by
+  ext x
+  simp only [mem_inter_iff]
+  constructor
+  · rintro ⟨xs, xt⟩; exact ⟨xt, xs⟩
+  · rintro ⟨xt, xs⟩; exact ⟨xs, xt⟩
+
+example : s ∩ t = t ∩ s :=
+  Set.ext fun _ ↦ ⟨fun ⟨xs, xt⟩ ↦ ⟨xt, xs⟩, fun ⟨xt, xs⟩ ↦ ⟨xs, xt⟩⟩
+
+example : s ∩ t = t ∩ s := by ext x; simp [and_comm]
+
+example : s ∩ t = t ∩ s := by
+  apply Subset.antisymm
+  · rintro x ⟨xs, xt⟩; exact ⟨xt, xs⟩
+  · rintro x ⟨xt, xs⟩; exact ⟨xs, xt⟩
+
+example : s ∩ t = t ∩ s :=
+    Subset.antisymm (fun _ ⟨xs, xt⟩ ↦ ⟨xt, xs⟩) (fun _ ⟨xs, xt⟩ ↦ ⟨xt, xs⟩)
+
+example : s ∩ (s ∪ t) = s := by
+  ext x
+  constructor
+  · rintro ⟨xs, xsut⟩; exact xs
+  · intro xs; exact ⟨xs, Or.inl xs⟩
+
+example : s ∩ (s ∪ t) = s :=
+  Set.ext fun _ ↦ ⟨fun ⟨xs, _⟩ ↦ xs, fun xs ↦ ⟨xs, Or.inl xs⟩⟩
+
+example : s ∪ s ∩ t = s := by
+  ext x
+  constructor
+  · rintro (xs | ⟨xs, xt⟩) <;> exact xs
+  · intro xs; exact Or.inl xs
+
+example : s ∪ s ∩ t = s :=
+  Set.ext fun _ ↦ ⟨fun h ↦ match h with
+    | Or.inl xs => xs
+    | Or.inr ⟨xs, _⟩ => xs,
+    fun xs => Or.inl xs⟩
+
+example : s \ t ∪ t = s ∪ t := by
+  ext x
+  constructor
+  · rintro (⟨xs, xnt⟩ | xt)
+    exact Or.inl xs
+    exact Or.inr xt
+  · rintro (xs | xt)
+    by_cases xt : x ∈ t
+    · right; exact xt
+    · left; exact ⟨xs, xt⟩
+    right; exact xt
+
+example : s \ t ∪ t \ s = (s ∪ t) \ (s ∩ t) := by
+  ext x
+  constructor
+  · rintro (⟨xs, xnt⟩ | ⟨xt,xns⟩)
+    constructor
+    · exact Or.inl xs
+    · rintro ⟨xs, xt⟩
+      contradiction
+    constructor
+    · exact Or.inr xt
+    · rintro xst
+      have xs : x ∈ s := xst.1
+      contradiction
+  · rintro ⟨xs | xt, xnst⟩
+    constructor
+    · constructor
+      · exact xs
+      · intro xt
+        have xst : x ∈ s ∩ t := ⟨xs, xt⟩
+        contradiction
+    · right
+      constructor
+      · exact xt
+      · intro xs
+        have xst : x ∈ s ∩ t := ⟨xs, xt⟩
+        contradiction
