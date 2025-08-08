@@ -176,3 +176,41 @@ example : s \ t ∪ t \ s = (s ∪ t) \ (s ∩ t) := by
       · intro xs
         have xst : x ∈ s ∩ t := ⟨xs, xt⟩
         contradiction
+
+def evens : Set ℕ :=
+  { n | Even n }
+
+def odds : Set ℕ :=
+  { n | ¬Even n }
+
+example : evens ∪ odds = univ := by
+  rw [evens, odds]
+  ext n
+  simp [-Nat.not_even_iff_odd]
+  apply Classical.em
+
+example (x : ℕ) (h : x ∈ (∅ : Set ℕ)) : False :=
+  h
+
+example (x : ℕ) : x ∈ (univ : Set ℕ) :=
+  trivial
+
+example : { n | Nat.Prime n } ∩ { n | n > 2 } ⊆ { n | ¬Even n } := by
+  intro n
+  simp
+  intro hprime hgt_two
+  rcases Nat.Prime.eq_two_or_odd hprime with htwo | hodd
+  · have hneq_two : n ≠ 2 := ne_of_gt hgt_two
+    contradiction
+  · exact Nat.odd_iff.2 hodd
+
+#print Prime
+
+#print Nat.Prime
+
+example (n : ℕ) : Prime n ↔ Nat.Prime n :=
+  Nat.prime_iff.symm
+
+example (n : ℕ) (h : Prime n) : Nat.Prime n := by
+  rw [Nat.prime_iff]
+  exact h
