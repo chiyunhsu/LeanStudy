@@ -1,7 +1,7 @@
 import Mathlib
 
 /- 4.1 Sets -/
-/- 25/07/24, 25/07/31, 25/08/08 -/
+/- 25/07/24, 25/07/31, 25/08/08, 25/08/15-/
 
 variable {α : Type*}
 variable (s t u : Set α)
@@ -214,3 +214,103 @@ example (n : ℕ) : Prime n ↔ Nat.Prime n :=
 example (n : ℕ) (h : Prime n) : Nat.Prime n := by
   rw [Nat.prime_iff]
   exact h
+
+example (n : ℕ) (h : Prime n) : Nat.Prime n := by
+  rwa [Nat.prime_iff]
+
+variable (s t : Set ℕ)
+
+example (h₀ : ∀ x ∈ s, ¬Even x) (h₁ : ∀ x ∈ s, Prime x) : ∀ x ∈ s, ¬Even x ∧ Prime x := by
+  intro x xs
+  constructor
+  · apply h₀ x xs
+  apply h₁ x xs
+
+example (h : ∃ x ∈ s, ¬Even x ∧ Prime x) : ∃ x ∈ s, Prime x := by
+  rcases h with ⟨x, xs, _, prime_x⟩
+  use x, xs
+
+section
+variable (ssubt : s ⊆ t)
+
+example (h₀ : ∀ x ∈ t, ¬Even x) (h₁ : ∀ x ∈ t, Prime x) : ∀ x ∈ s, ¬Even x ∧ Prime x := by
+  intro x xs
+  have xt : x ∈ t := ssubt xs
+  exact ⟨h₀ x xt, h₁ x xt⟩
+
+example (h : ∃ x ∈ s, ¬Even x ∧ Prime x) : ∃ x ∈ t, Prime x := by
+  rcases h with ⟨x, xs, _, prime_x⟩
+  have xt : x ∈ t := ssubt xs
+  use x, xt
+
+end
+
+variable {α I : Type*}
+variable (A B : I → Set α)
+variable (s : Set α)
+
+open Set
+
+example : (s ∩ ⋃ i, A i) = ⋃ i, A i ∩ s := by
+  ext x
+  simp only [mem_inter_iff, mem_iUnion]
+  constructor
+  · rintro ⟨xs, ⟨i, xAi⟩⟩
+    exact ⟨i, xAi, xs⟩
+  rintro ⟨i, xAi, xs⟩
+  exact ⟨xs, ⟨i, xAi⟩⟩
+
+example : (⋂ i, A i ∩ B i) = (⋂ i, A i) ∩ ⋂ i, B i := by
+  ext x
+  simp only [mem_inter_iff, mem_iInter]
+  constructor
+  · intro h
+    constructor
+    · intro i
+      exact (h i).1
+    intro i
+    exact (h i).2
+  rintro ⟨h1, h2⟩ i
+  constructor
+  · exact h1 i
+  exact h2 i
+
+  example : (s ∪ ⋂ i, A i) = ⋂ i, A i ∪ s := by
+    ext x
+    simp only [mem_inter_iff, mem_iInter]
+    constructor
+    · rintro x_s_union
+      rcases x_s_union with xs | xunion
+      · intro i
+        right; exact xs
+      · intro i
+        simp only [mem_iInter] at xunion
+        left; exact xunion i
+    · intro x_union_s
+      by_cases xs : x ∈ s
+      · left; exact xs
+      · right
+        simp only [mem_iInter]
+        intro i
+        have xis : x ∈ A i ∪ s := x_union_s i
+        rcases xis with xi | xs
+        · exact xi
+        · contradiction
+
+def primes : Set ℕ :=
+  { x | Nat.Prime x }
+
+example : (⋃ p ∈ primes, { x | p ^ 2 ∣ x }) = { x | ∃ p ∈ primes, p ^ 2 ∣ x } :=by
+  ext
+  rw [mem_iUnion₂]
+  simp
+
+example : (⋃ p ∈ primes, { x | p ^ 2 ∣ x }) = { x | ∃ p ∈ primes, p ^ 2 ∣ x } := by
+  ext
+  simp
+
+example : (⋂ p ∈ primes, { x | ¬p ∣ x }) ⊆ { x | x = 1 } := by
+  intro x
+  contrapose!
+  simp
+  apply Nat.exists_prime_and_dvd
