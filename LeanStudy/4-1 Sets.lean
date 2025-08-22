@@ -1,7 +1,7 @@
 import Mathlib
 
 /- 4.1 Sets -/
-/- 25/07/24, 25/07/31, 25/08/08, 25/08/15-/
+/- 25/07/24, 25/07/31, 25/08/08, 25/08/15, 25/08/22 -/
 
 variable {α : Type*}
 variable (s t u : Set α)
@@ -300,7 +300,7 @@ example : (⋂ i, A i ∩ B i) = (⋂ i, A i) ∩ ⋂ i, B i := by
 def primes : Set ℕ :=
   { x | Nat.Prime x }
 
-example : (⋃ p ∈ primes, { x | p ^ 2 ∣ x }) = { x | ∃ p ∈ primes, p ^ 2 ∣ x } :=by
+example : (⋃ p ∈ primes, { x | p ^ 2 ∣ x }) = { x | ∃ p ∈ primes, p ^ 2 ∣ x } := by
   ext
   rw [mem_iUnion₂]
   simp
@@ -314,3 +314,21 @@ example : (⋂ p ∈ primes, { x | ¬p ∣ x }) ⊆ { x | x = 1 } := by
   contrapose!
   simp
   apply Nat.exists_prime_and_dvd
+
+example : (⋃ p ∈ primes, { x | x ≤ p }) = univ := by
+  ext x
+  simp [primes]
+  rcases (Nat.exists_infinite_primes x) with ⟨p, h_le, h_prime⟩
+  exact ⟨p, h_prime, h_le⟩
+
+variable {α : Type*} (s : Set (Set α))
+
+example : ⋃₀ s = ⋃ t ∈ s, t := by
+  ext x
+  rw [mem_iUnion₂]
+  simp
+
+example : ⋂₀ s = ⋂ t ∈ s, t := by
+  ext x
+  rw [mem_iInter₂]
+  rfl
