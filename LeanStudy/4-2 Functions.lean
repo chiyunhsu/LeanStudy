@@ -51,7 +51,6 @@ example : f '' (f ⁻¹' u) ⊆ u := by
 
 example (h : Surjective f) : u ⊆ f '' (f ⁻¹' u) := by
   rintro y yu
-  unfold Surjective at h
   obtain ⟨x, rfl⟩ := h y
   use x, yu
 
@@ -67,31 +66,68 @@ example : f ⁻¹' (u ∪ v) = f ⁻¹' u ∪ f ⁻¹' v := by
   ext x; constructor
   · rintro (xu | xv)
     left; exact xu
-    exact Or.inr xv
+    right; exact xv
   · rintro (xu | xv)
     exact Or.inl xu
     exact Or.inr xv
 
+example : f ⁻¹' (u ∪ v) = f ⁻¹' u ∪ f ⁻¹' v := by
+  constructor
+
 example : f '' (s ∩ t) ⊆ f '' s ∩ f '' t := by
-  sorry
+  rintro y ⟨x, ⟨xs, xt⟩, rfl⟩
+  constructor <;> use x
 
 example (h : Injective f) : f '' s ∩ f '' t ⊆ f '' (s ∩ t) := by
-  sorry
+  rintro y ⟨ys, yt⟩
+  obtain ⟨x1, x1s, hx1⟩ := ys
+  rw [← hx1]
+  obtain ⟨x2, x2t, hx2⟩ := yt
+  unfold Injective at h
+  rw [← hx2] at hx1
+  have heq := h hx1
+  rw [← heq] at x2t
+  use x1, ⟨x1s, x2t⟩
 
 example : f '' s \ f '' t ⊆ f '' (s \ t) := by
-  sorry
+  rintro y ⟨ys, ynt⟩
+  obtain ⟨x, xs, rfl⟩ := ys
+  have xnt : x ∉ t := by
+    intro xt
+    apply ynt
+    use x, xt
+  use x, ⟨xs, xnt⟩
 
 example : f ⁻¹' u \ f ⁻¹' v ⊆ f ⁻¹' (u \ v) := by
-  sorry
+  rintro x ⟨xu, xnv⟩
+  use xu, xnv
 
 example : f '' s ∩ v = f '' (s ∩ f ⁻¹' v) := by
-  sorry
+  ext y; constructor
+  · rintro ⟨ys, yv⟩
+    obtain ⟨x, xs, rfl⟩ := ys
+    have xv : x ∈ f ⁻¹' v := by
+      show f x ∈ v
+      exact yv
+    use x, ⟨xs, xv⟩
+  · rintro ⟨x, ⟨xs, xv⟩, rfl⟩
+    constructor
+    · use x, xs
+    · exact xv
 
 example : f '' (s ∩ f ⁻¹' u) ⊆ f '' s ∩ u := by
-  sorry
+  rintro y ⟨x, ⟨xs, xv⟩, rfl⟩
+  constructor
+  · use x, xs
+  · exact xv
 
 example : s ∩ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∩ u) := by
-  sorry
+  rintro x ⟨xs, xu⟩
+  constructor
+  · use x, xs
+  · exact xu
 
 example : s ∪ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∪ u) := by
-  sorry
+  rintro x (xs | xu)
+  · exact Or.inl ⟨x, xs, rfl⟩
+  · exact Or.inr xu
