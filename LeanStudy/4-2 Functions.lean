@@ -131,3 +131,79 @@ example : s ∪ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∪ u) := by
   rintro x (xs | xu)
   · exact Or.inl ⟨x, xs, rfl⟩
   · exact Or.inr xu
+
+variable {I : Type*} (A : I → Set α) (B : I → Set β)
+
+example : (f '' ⋃ i, A i) = ⋃ i, f '' A i := by
+  ext y
+  simp
+  constructor
+  · rintro ⟨x, hx, rfl⟩
+    rcases hx with ⟨i, xAi⟩
+    use i, x, xAi
+  · rintro ⟨i, x, xAi, rfl⟩
+    use x, ⟨i, xAi⟩
+
+example : (f '' ⋂ i, A i) ⊆ ⋂ i, f '' A i := by
+  simp
+  intro i x hx
+  show f x ∈ f '' A i
+  simp at hx
+  use x, hx i
+
+example (i : I) (injf : Injective f) : (⋂ i, f '' A i) ⊆ f '' ⋂ i, A i := by
+  intro y hy
+  simp at *
+  rcases (hy i) with ⟨x, xAi, rfl⟩
+  use x
+  constructor
+  intro j
+  rcases (hy j) with ⟨x', x'Aj, h⟩
+  have heq : x' = x := injf h
+  rw [← heq]
+  exact x'Aj
+  rfl
+
+example : (f ⁻¹' ⋃ i, B i) = ⋃ i, f ⁻¹' B i := by
+  ext x
+  simp
+
+example : (f ⁻¹' ⋂ i, B i) = ⋂ i, f ⁻¹' B i := by
+  ext x
+  simp
+
+example : InjOn f s ↔ ∀ x₁ ∈ s, ∀ x₂ ∈ s, f x₁ = f x₂ → x₁ = x₂ :=
+  Iff.refl _
+
+open Set Real
+
+example : InjOn log { x | x > 0 } := by
+  intro x xpos y ypos
+  intro e
+  -- log x = log y
+  calc
+    x = exp (log x) := by rw [exp_log xpos]
+    _ = exp (log y) := by rw [e]
+    _ = y := by rw [exp_log ypos]
+
+
+example : range exp = { y | y > 0 } := by
+  ext y; constructor
+  · rintro ⟨x, rfl⟩
+    apply exp_pos
+  intro ypos
+  use log y
+  rw [exp_log ypos]
+
+example : InjOn sqrt { x | x ≥ 0 } := by
+
+  sorry
+
+example : InjOn (fun x ↦ x ^ 2) { x : ℝ | x ≥ 0 } := by
+  sorry
+
+example : sqrt '' { x | x ≥ 0 } = { y | y ≥ 0 } := by
+  sorry
+
+example : (range fun x ↦ x ^ 2) = { y : ℝ | y ≥ 0 } := by
+  sorry
