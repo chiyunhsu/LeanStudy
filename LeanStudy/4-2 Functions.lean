@@ -186,7 +186,6 @@ example : InjOn log { x | x > 0 } := by
     _ = exp (log y) := by rw [e]
     _ = y := by rw [exp_log ypos]
 
-
 example : range exp = { y | y > 0 } := by
   ext y; constructor
   · rintro ⟨x, rfl⟩
@@ -196,14 +195,51 @@ example : range exp = { y | y > 0 } := by
   rw [exp_log ypos]
 
 example : InjOn sqrt { x | x ≥ 0 } := by
-
-  sorry
+  intro x xnn y ynn sqeq
+  rw [← sq_sqrt xnn, ← sq_sqrt ynn, sqeq]
 
 example : InjOn (fun x ↦ x ^ 2) { x : ℝ | x ≥ 0 } := by
-  sorry
+  intro x xnn y ynn eq
+  simp at eq
+  rw [← sqrt_sq xnn, ← sqrt_sq ynn, eq]
 
 example : sqrt '' { x | x ≥ 0 } = { y | y ≥ 0 } := by
-  sorry
+  ext y
+  simp
+  constructor
+  · rintro ⟨x, xnn, rfl⟩
+    apply sqrt_nonneg
+  · intro ynn
+    use y ^ 2, sq_nonneg y, sqrt_sq ynn
 
 example : (range fun x ↦ x ^ 2) = { y : ℝ | y ≥ 0 } := by
-  sorry
+  ext y
+  simp
+  constructor
+  · rintro ⟨x, rfl⟩
+    exact sq_nonneg x
+  · intro ynn
+    use sqrt y, sq_sqrt ynn
+
+variable {α β : Type*} [Inhabited α]
+
+#check (default : α)
+
+variable (P : α → Prop) (h : ∃ x, P x)
+
+#check Classical.choose h
+
+example : P (Classical.choose h) :=
+  Classical.choose_spec h
+
+noncomputable section
+
+open Classical
+
+def inverse (f : α → β) : β → α := fun y : β ↦
+  if h : ∃ x, f x = y then Classical.choose h else default
+
+theorem inverse_spec {f : α → β} (y : β) (h : ∃ x, f x = y) : f (inverse f y) = y := by
+  rw [inverse]
+  rw [dif_pos h]
+  exact Classical.choose_spec h
