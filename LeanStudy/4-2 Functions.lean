@@ -243,3 +243,23 @@ theorem inverse_spec {f : α → β} (y : β) (h : ∃ x, f x = y) : f (inverse 
   rw [inverse]
   rw [dif_pos h]
   exact Classical.choose_spec h
+
+variable (f : α → β)
+
+open Function
+
+#print LeftInverse
+
+example : Injective f ↔ LeftInverse (inverse f) f := by
+  constructor
+  · rintro f_inj x
+    let x' := inverse f (f x)
+    have h : f x' = f x := inverse_spec (f x) ⟨x, rfl⟩
+    exact f_inj h
+  · intro h x1 x2 feq
+    have h1 : inverse f (f x1) = x1 := h x1
+    have h2 : inverse f (f x2) = x2 := h x2
+    rw [← h1, ← h2, feq]
+
+example : Surjective f ↔ RightInverse (inverse f) f :=
+  sorry
