@@ -261,5 +261,23 @@ example : Injective f ↔ LeftInverse (inverse f) f := by
     have h2 : inverse f (f x2) = x2 := h x2
     rw [← h1, ← h2, feq]
 
-example : Surjective f ↔ RightInverse (inverse f) f :=
-  sorry
+example : Surjective f ↔ RightInverse (inverse f) f := by
+  constructor
+  · rintro f_surj y
+    exact inverse_spec y (f_surj y)
+  · rintro h y
+    use inverse f y
+    exact h y
+
+variable {α : Type*}
+theorem Cantor : ∀ f : α → Set α, ¬Surjective f := by
+  intro f surjf
+  let S := { i | i ∉ f i }
+  rcases surjf S with ⟨j, h⟩
+  have h₁ : j ∉ f j := by
+    intro h'
+    have : j ∉ f j := by rwa [h] at h'
+    contradiction
+  have h₂ : j ∈ S := h₁
+  have h₃ : j ∉ S := by rwa [← h]
+  contradiction
