@@ -33,3 +33,54 @@ theorem sb_right_inv {x : α} (hx : x ∉ sbSet f g) : g (invFun g x) = x := by
     rcases this with ⟨y, hy⟩
     use y, hy.2
   exact invFun_eq this
+
+theorem sb_injective (hf : Injective f) : Injective (sbFun f g) := by
+  set A := sbSet f g with A_def
+  set h := sbFun f g with h_def
+  intro x₁ x₂
+  intro (hxeq : h x₁ = h x₂)
+  show x₁ = x₂
+  simp only [h_def, sbFun, ← A_def] at hxeq
+  by_cases xA : x₁ ∈ A ∨ x₂ ∈ A
+  · wlog x₁A : x₁ ∈ A generalizing x₁ x₂ hxeq xA
+    · symm
+      apply this hxeq.symm xA.symm (xA.resolve_left x₁A)
+    have x₂A : x₂ ∈ A := by
+      apply _root_.not_imp_self.mp
+      intro (x₂nA : x₂ ∉ A)
+      rw [if_pos x₁A, if_neg x₂nA] at hxeq
+      rw [A_def, sbSet, mem_iUnion] at x₁A
+      have x₂eq : x₂ = g (f x₁) := by
+        rw [hxeq]
+        rw [sb_right_inv f g x₂nA]
+      rcases x₁A with ⟨n, hn⟩
+      rw [A_def, sbSet, mem_iUnion]
+      use n + 1
+      simp [sbAux]
+      exact ⟨x₁, hn, x₂eq.symm⟩
+    rw [if_pos x₁A, if_pos x₂A] at hxeq
+    exact hf hxeq
+  push_neg at xA
+  rw [if_neg xA.1, if_neg xA.2] at hxeq
+  rw [← sb_right_inv f g xA.1, ← sb_right_inv f g xA.2]
+  rw [hxeq]
+
+theorem sb_surjective (hg : Injective g) : Surjective (sbFun f g) := by
+  set A := sbSet f g with A_def
+  set h := sbFun f g with h_def
+  intro y
+  by_cases gyA : g y ∈ A
+  · rw [A_def, sbSet, mem_iUnion] at gyA
+    rcases gyA with ⟨n, hn⟩
+    rcases n with _ | n
+    · simp [sbAux] at hn
+    simp [sbAux] at hn
+    rcases hn with ⟨x, xmem, hx⟩
+    use x
+    have : x ∈ A := by
+      rw [A_def, sbSet, mem_iUnion]
+      exact ⟨n, xmem⟩
+    rw [h_def, sbFun, if_pos this]
+    apply hg hx
+
+  sorry
