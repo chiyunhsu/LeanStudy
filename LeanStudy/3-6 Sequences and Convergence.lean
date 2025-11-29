@@ -1,6 +1,5 @@
 import Mathlib
 
-/- 3.6 Sequences and Convergence -/
 /- 25/06/23, 25/07/07, 25/07/13 -/
 
 def ConvergesTo (s : ℕ → ℝ) (a : ℝ) :=

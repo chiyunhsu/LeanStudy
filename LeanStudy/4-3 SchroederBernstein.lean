@@ -82,5 +82,10 @@ theorem sb_surjective (hg : Injective g) : Surjective (sbFun f g) := by
       exact ⟨n, xmem⟩
     rw [h_def, sbFun, if_pos this]
     apply hg hx
+  · use g y
+    rw [h_def, sbFun, if_neg gyA]
+    exact leftInverse_invFun hg y
 
-  sorry
+  theorem schroeder_bernstein {f : α → β} {g : β → α} (hf : Injective f) (hg : Injective g) :
+    ∃ h : α → β, Bijective h :=
+  ⟨sbFun f g, sb_injective f g hf, sb_surjective f g hg⟩
