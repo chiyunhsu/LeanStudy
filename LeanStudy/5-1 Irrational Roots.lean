@@ -49,19 +49,38 @@ example (a b c : Nat) (h : a * b = a * c) (h' : a ≠ 0) : b = c :=
 
 example {m n : ℕ} (coprime_mn : m.Coprime n) : m ^ 2 ≠ 2 * n ^ 2 := by
   intro sqr_eq
-  have : 2 ∣ m := by
-    apply Nat.Prime.dvd_of_dvd_pow (n := 2) Nat.prime_two
+  have two_dvd_m : 2 ∣ m := by
+    apply even_of_even_sqr
     use n ^ 2
-  obtain ⟨k, meq⟩ := dvd_iff_exists_eq_mul_left.mp this
+  obtain ⟨k, meq⟩ := dvd_iff_exists_eq_mul_left.mp two_dvd_m
   have : 2 * (2 * k ^ 2) = 2 * n ^ 2 := by
     rw [← sqr_eq, meq]
     ring
-  have : 2 * k ^ 2 = n ^ 2 :=
-    sorry
-  have : 2 ∣ n := by
-    sorry
-  have : 2 ∣ m.gcd n := by
-    sorry
+  have : 2 * k ^ 2 = n ^ 2 := (mul_right_inj' two_ne_zero).mp this
+  have two_dvd_n : 2 ∣ n := by
+    apply even_of_even_sqr
+    use k ^ 2
+    rw [← this]
+  have : 2 ∣ m.gcd n := Nat.dvd_gcd two_dvd_m two_dvd_n
   have : 2 ∣ 1 := by
-    sorry
+    rwa [← coprime_mn]
   norm_num at this
+
+example {m n p : ℕ} (coprime_mn : m.Coprime n) (prime_p : p.Prime) : m ^ 2 ≠ p * n ^ 2 := by
+  intro sqr_eq
+  have p_dvd_m : p ∣ m := by
+    apply Nat.Prime.dvd_of_dvd_pow (n := 2) prime_p
+    use n ^ 2
+  obtain ⟨k, meq⟩ := dvd_iff_exists_eq_mul_left.mp p_dvd_m
+  have : p * (p * k ^ 2) = p * n ^ 2 := by
+    rw [← sqr_eq, meq]
+    ring
+  have : p * k ^ 2 = n ^ 2 := (mul_right_inj' (Nat.Prime.ne_zero prime_p)).mp this
+  have p_dvd_n : p ∣ n :=
+    Nat.Prime.dvd_of_dvd_pow prime_p (Dvd.intro (k ^ 2) this)
+  have : p ∣ m.gcd n := Nat.dvd_gcd p_dvd_m p_dvd_n
+  have p_dvd_one : p ∣ 1 := by
+    rwa [← coprime_mn]
+  have : 2 ≤ p := Nat.Prime.two_le prime_p
+  have : p ≤ 1 := Nat.le_of_dvd zero_lt_one p_dvd_one
+  linarith
