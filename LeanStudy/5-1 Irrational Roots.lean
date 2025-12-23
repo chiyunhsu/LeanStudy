@@ -69,7 +69,7 @@ example {m n : ℕ} (coprime_mn : m.Coprime n) : m ^ 2 ≠ 2 * n ^ 2 := by
 example {m n p : ℕ} (coprime_mn : m.Coprime n) (prime_p : p.Prime) : m ^ 2 ≠ p * n ^ 2 := by
   intro sqr_eq
   have p_dvd_m : p ∣ m := by
-    apply Nat.Prime.dvd_of_dvd_pow (n := 2) prime_p
+    apply Nat.Prime.dvd_of_dvd_pow prime_p
     use n ^ 2
   obtain ⟨k, meq⟩ := dvd_iff_exists_eq_mul_left.mp p_dvd_m
   have : p * (p * k ^ 2) = p * n ^ 2 := by
@@ -84,3 +84,48 @@ example {m n p : ℕ} (coprime_mn : m.Coprime n) (prime_p : p.Prime) : m ^ 2 ≠
   have : 2 ≤ p := Nat.Prime.two_le prime_p
   have : p ≤ 1 := Nat.le_of_dvd zero_lt_one p_dvd_one
   linarith
+
+#check Nat.primeFactorsList
+#check Nat.prime_of_mem_primeFactorsList
+#check Nat.prod_primeFactorsList
+#check Nat.primeFactorsList_unique
+
+theorem factorization_mul' {m n : ℕ} (mnez : m ≠ 0) (nnez : n ≠ 0) (p : ℕ) :
+    (m * n).factorization p = m.factorization p + n.factorization p := by
+  rw [Nat.factorization_mul mnez nnez]
+  rfl
+
+theorem factorization_pow' (n k p : ℕ) :
+    (n ^ k).factorization p = k * n.factorization p := by
+  rw [Nat.factorization_pow]
+  rfl
+
+theorem Nat.Prime.factorization' {p : ℕ} (prime_p : p.Prime) :
+    p.factorization p = 1 := by
+  rw [prime_p.factorization]
+  simp
+
+example {m n p : ℕ} (nnz : n ≠ 0) (prime_p : p.Prime) : m ^ 2 ≠ p * n ^ 2 := by
+  intro sqr_eq
+  have nsqr_nez : n ^ 2 ≠ 0 := by simpa
+  have eq1 : Nat.factorization (m ^ 2) p = 2 * m.factorization p := factorization_pow' m 2 p
+  have eq2 : (p * n ^ 2).factorization p = 2 * n.factorization p + 1 := by
+    rw [factorization_mul' prime_p.ne_zero nsqr_nez, factorization_pow' n 2 p, prime_p.factorization', add_comm]
+  have : 2 * m.factorization p % 2 = (2 * n.factorization p + 1) % 2 := by
+    rw [← eq1, sqr_eq, eq2]
+  rw [add_comm, Nat.add_mul_mod_self_left, Nat.mul_mod_right] at this
+  norm_num at this
+
+example {m n k r : ℕ} (nnz : n ≠ 0) (pow_eq : m ^ k = r * n ^ k) {p : ℕ} :
+    k ∣ r.factorization p := by
+  rcases r with _ | r
+  · simp
+  have npow_nz : n ^ k ≠ 0 := fun npowz ↦ nnz (pow_eq_zero npowz)
+  have eq1 : (m ^ k).factorization p = k * m.factorization p := factorization_pow' m k p
+  have eq2 : ((r + 1) * n ^ k).factorization p =
+      k * n.factorization p + (r + 1).factorization p := by
+    rw [factorization_mul' r.succ_ne_zero npow_nz, factorization_pow' n k p, add_comm]
+  have : r.succ.factorization p = k * m.factorization p - k * n.factorization p := by
+    rw [← eq1, pow_eq, eq2, add_comm, Nat.add_sub_cancel]
+  rw [this]
+  simp [Nat.dvd_sub, Nat.dvd_mul_left]
