@@ -1,4 +1,4 @@
-import mathlib
+import Mathlib
 
 -- P is a quantifier
 variable {α : Type*} (P : α → Prop) (Q : Prop)
@@ -54,3 +54,42 @@ example (h : ∃ x, ¬P x) : ¬∀ x, P x := by
   exact h' x
 --push_neg
 --exact h
+
+
+/- Rules of Inference -/
+variable (P : Prop) (Q : Prop) (R : Prop)
+
+-- Modus Ponens
+example (h₁ : P → Q) (h₂ : P) : Q := h₁ h₂
+-- Modus Tollens
+example (h₁ : P → Q) (h₂ : ¬Q) : ¬P := mt h₁ h₂
+-- Addition
+example (h : P) : P ∨ Q := Or.inl h
+-- Simplification
+example (h : P ∧ Q) : P := h.1
+-- Conjunction
+example (h₁ : P) (h₂ : Q) : P ∧ Q := ⟨h₁, h₂⟩ -- And.intro h₁ h₂
+-- Disjunctive Syllogism
+example (h₁ : P ∨ Q) (h₂ : ¬P) : Q := by
+  rcases h₁ with hp | hq
+  · exact absurd hp h₂
+  · exact hq
+-- Hypothetical Syllogism
+example (h₁ : P → Q) (h₂ : Q → R) : (P → R) := by
+  intro hp
+  have hq : Q := h₁ hp
+  exact h₂ hq
+-- Resolution
+example (h₁ : P ∨ Q) (h₂ : ¬P ∨ R) : Q ∨ R := by
+  rcases h₁ with hp | hq
+  · rcases h₂ with hnp | hr
+    · exact absurd hp hnp
+    · exact Or.inr hr
+  · exact Or.inl hq
+
+/- Rules of Inference with Quantifiers -/
+variable {α : Type*} (P : α → Prop) (Q : Prop) (R : Prop)
+-- Universal Instantiation
+example (c : α) (h : ∀ x, P x) : P c := h c
+-- Existential Generalization
+example (c : α) (h : P c) : ∃ x, P x := Exists.intro c h
