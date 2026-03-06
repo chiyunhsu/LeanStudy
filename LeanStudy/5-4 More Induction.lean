@@ -90,3 +90,51 @@ theorem fib'_eq_fib : fib' = fib := by
   erw [fib', fib'.aux_eq 0 n]; rfl
 
 #eval fib' 10000
+
+theorem fib_add (m n : ℕ) : fib (m + n + 1) = fib m * fib n + fib (m + 1) * fib (n + 1) := by
+  induction n generalizing m with
+  | zero => simp
+  | succ n ih =>
+    specialize ih (m + 1)
+    rw [add_assoc m 1 n, add_comm 1 n] at ih
+    simp only [fib_add_two, Nat.succ_eq_add_one, ih]
+    ring
+
+theorem fib_add' : ∀ m n, fib (m + n + 1) = fib m * fib n + fib (m + 1) * fib (n + 1)
+  | _, 0     => by simp
+  | m, n + 1 => by
+    have := fib_add' (m + 1) n
+    rw [add_assoc m 1 n, add_comm 1 n] at this
+    simp only [fib_add_two, Nat.succ_eq_add_one, this]
+    ring
+
+example (n : ℕ): (fib n) ^ 2 + (fib (n + 1)) ^ 2 = fib (2 * n + 1) := by
+  rw [two_mul, fib_add n n, pow_two, pow_two]
+
+#check (@Nat.not_prime_iff_exists_dvd_lt :
+  ∀ {n : ℕ}, 2 ≤ n → (¬Nat.Prime n ↔ ∃ m, m ∣ n ∧ 2 ≤ m ∧ m < n))
+#check Nat.ne_one_iff_exists_prime_dvd
+
+theorem ne_one_iff_exists_prime_dvd : ∀ {n}, n ≠ 1 ↔ ∃ p : ℕ, p.Prime ∧ p ∣ n
+  | 0 => by simpa using Exists.intro 2 Nat.prime_two
+  | 1 => by simp [Nat.not_prime_one]
+  | n + 2 => by
+    have hn : n+2 ≠ 1 := by omega
+    simp only [Ne, not_false_iff, true_iff, hn]
+    by_cases h : Nat.Prime (n + 2)
+    · use n+2, h
+    · have : 2 ≤ n + 2 := by omega
+      rw [Nat.not_prime_iff_exists_dvd_lt this] at h
+      rcases h with ⟨m, mdvdn, mge2, -⟩
+      have : m ≠ 1 := by omega
+      rw [ne_one_iff_exists_prime_dvd] at this
+      rcases this with ⟨p, primep, pdvdm⟩
+      use p, primep
+      exact pdvdm.trans mdvdn
+
+theorem zero_lt_of_mul_eq_one (m n : ℕ) : n * m = 1 → 0 < n ∧ 0 < m := by
+  cases n <;> cases m <;> simp
+
+example (m n : ℕ) : n*m = 1 → 0 < n ∧ 0 < m := by
+  rcases m with (_ | m); simp
+  rcases n with (_ | n) <;> simp
