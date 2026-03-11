@@ -61,3 +61,22 @@ example (n : ℕ) : #(triangle n) = (n + 1) * n / 2 := by
     rw [card_image_of_injective, card_range]
     intros i1 i2; simp
   rw [sum_range_id]; rfl
+
+example (n : ℕ) : #(triangle n) = (n + 1) * n / 2 := by
+  have : triangle n ≃ Σ i : Fin (n + 1), Fin i.val :=
+    { toFun := by
+        rintro ⟨⟨i, j⟩, hp⟩
+        simp [triangle] at hp
+        exact ⟨⟨j, hp.1.2⟩, ⟨i, hp.2⟩⟩
+      invFun := by
+        rintro ⟨i, j⟩
+        use ⟨j, i⟩
+        simp [triangle]
+        exact j.isLt.trans i.isLt
+      left_inv := by intro i; rfl
+      right_inv := by intro i; rfl }
+  rw [←Fintype.card_coe]
+  trans; apply (Fintype.card_congr this)
+  rw [Fintype.card_sigma, sum_fin_eq_sum_range]
+  convert Finset.sum_range_id (n + 1)
+  simp_all
