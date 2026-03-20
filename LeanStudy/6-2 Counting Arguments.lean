@@ -76,7 +76,49 @@ example (n : ℕ) : #(triangle n) = (n + 1) * n / 2 := by
       left_inv := by intro i; rfl
       right_inv := by intro i; rfl }
   rw [←Fintype.card_coe]
-  trans; apply (Fintype.card_congr this)
+  --trans;
+  rw [(Fintype.card_congr this)]
   rw [Fintype.card_sigma, sum_fin_eq_sum_range]
   convert Finset.sum_range_id (n + 1)
   simp_all
+
+#check sub_left_injective
+#check Function.Injective.prodMap
+example (n : ℕ) : #(triangle n) = (n + 1) * n / 2 := by
+  apply Nat.eq_div_of_mul_eq_right (by norm_num)
+  let turn (p : ℕ × ℕ) : ℕ × ℕ := (n - 1 - p.1, n - p.2)
+  calc 2 * #(triangle n)
+      = #(triangle n) + #(triangle n) := by omega
+    _ = #(triangle n) + #(triangle n |>.image turn) := by
+          simp
+          rw [card_image_of_injOn]
+          simp [turn, Set.InjOn]
+          intro a b hab a' b' hab' eqa eqb
+          simp [triangle] at hab hab'
+          constructor <;> omega
+    _ = #(range n ×ˢ range (n + 1)) := by
+          rw [← card_union_of_disjoint]
+          congr; ext p; simp [triangle, turn]
+          constructor
+          · rintro (h | hturn)
+            · omega
+            · rcases hturn with ⟨a,b,h1,h2⟩
+              constructor
+              rw [← (Prod.mk.inj h2).1]; omega
+              rw [← (Prod.mk.inj h2).2]; omega
+          · rintro ⟨hp1, hp2⟩
+            by_cases h : (p.1 < n + 1 ∧ p.2 < n + 1) ∧ p.1 < p.2
+            · left; exact h
+            · right; push_neg at h
+              use n - 1 - p.1, n - p.2
+              constructor
+              · omega
+              · ext; simp; omega; simp; omega
+          rw [disjoint_right]
+          simp [turn]
+          rintro a b c d hturn hac hbd
+          simp [triangle] at *
+          omega
+    _ = (n + 1) * n := by
+          rw [card_product, card_range, card_range]
+          linarith
