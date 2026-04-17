@@ -150,9 +150,9 @@ example {n : ℕ} (A : Finset ℕ)
   have : ∃ t ∈ range n, 1 < #({u ∈ A | u / 2 = t}) := by
     apply exists_lt_card_fiber_of_mul_lt_card_of_maps_to
     · intro a ha
-      have ha : a < 2 * n := by
-        rw [← mem_range]; exact Finset.mem_of_subset hA' ha
-      simp [Nat.div_lt_iff_lt_mul (by omega: 2 > 0)]
+      have : a < 2 * n := by
+        rw [← mem_range]; exact hA' ha
+      simp
       omega
     · simp [hA]
   rcases this with ⟨t, ht, ht'⟩

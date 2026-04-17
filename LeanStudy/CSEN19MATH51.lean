@@ -219,26 +219,41 @@ example {p q r : Prop} (h1 : p) (h2 : p ∧ ¬r) (h3 : ¬r → q) : p ∧ q := b
   exact h7
 
 example {p q r : Prop} (h1 : p ∧ ¬q) (h2 : r → q) : ¬r := by
-  sorry
+  have h3 : ¬q ∧ p := AndCommutative.mp h1
+  have h4 : ¬q := Simplification h3
+  have h5 : ¬r := ModusTollens h2 h4
+  exact h5
 
 example {p q r : Prop} (h1 : p ∨ q) (h2 : ¬p ∨ r) (h3 : ¬r) : q := by
-  sorry
+  have h4 : q ∨ r := Resolution h1 h2
+  have h5 : r ∨ q := OrCommutative.mp h4
+  have h6 : q := DisjunctiveSyllogism h5 h3
+  exact h6
 
 /- Rules of Inference with Quantifiers -/
 variable {α : Type*}
 -- Universal Instantiation
 lemma UnivInst {p : α → Prop} (h : ∀ x, p x) (c : α) : p c := h c
 
+--Universal generalization
+lemma UnivGen {p : α → Prop} (h : ∀ c, p c) : ∀ x, p x := h
+
+-- Existential Instantiation
+lemma ExistInst {p : α → Prop} (h : ∃ x, p x) : ∃ c, p c := h
+
 -- Existential Generalization
 lemma ExistGen {p : α → Prop} (c : α) (h : p c) : ∃ x, p x := Exists.intro c h
 
 /- Examples with Quantifiers -/
 
-example {p q : α → Prop} (c : α) (h1 : ∀ x, p x → q x) (h2 : p c) : q c := by
+example {p q : ℕ → Prop} (h1 : ∀ x, p x → q x) (h2 : p 3) : q 3 := by
   sorry
 
-example {p q : α → Prop} (c : α) (h : p c ∧ q c) : ∃ x, p x := by
+example {p q : ℕ → Prop} (h1 : p 3 ∧ q 3) : ∃ x, p x := by
   sorry
 
-example {p q : α → Prop} (h1 : ∃ x, p x) (h2 : ∀ x, p x → q x) : ∃ x, q x := by
+example {p q : α → Prop} (h1 : ∀ c, p c ∨ q c) (h2 : ∀ c, ¬ (q c)) : ∀ x, p x := by
+  sorry
+
+example {p q : α → Prop} (h1 : ∃ x, p x ∨ q x) (h2 : ∃ x, ¬ (p x)) : ∃ x, q x := by
   sorry
