@@ -108,7 +108,7 @@ def swapXy (a : StandardTwoSimplex) : StandardTwoSimplex
 
 noncomputable section
 
-namespace StandardSimplex
+namespace StandardTwoSimplex
 
 def midpoint (a b : StandardTwoSimplex) : StandardTwoSimplex
     where
@@ -133,4 +133,78 @@ def weightedAverage (lambda : Real) (lambda_nonneg : 0 ≤ lambda) (lambda_le : 
     _ = lambda * (a.x + a.y + a.z) + (1 - lambda) * (b.x + b.y + b.z) := by ring
     _ = 1 := by simp [a.sum_eq, b.sum_eq]
 
+end StandardTwoSimplex
+
+open BigOperators
+
+structure StandardSimplex (n : ℕ) where
+  V : Fin n → ℝ
+  NonNeg : ∀ i : Fin n, 0 ≤ V i
+  sum_eq_one : (∑ i, V i) = 1
+
+namespace StandardSimplex
+
+def midpoint (n : ℕ) (a b : StandardSimplex n) : StandardSimplex n
+    where
+  V i := (a.V i + b.V i) / 2
+  NonNeg := by
+    intro i
+    apply div_nonneg
+    · linarith [a.NonNeg i, b.NonNeg i]
+    norm_num
+  sum_eq_one := by
+    simp [div_eq_mul_inv, ← Finset.sum_mul, Finset.sum_add_distrib,
+      a.sum_eq_one, b.sum_eq_one]
+    field_simp
+
 end StandardSimplex
+
+structure IsLinear (f : ℝ → ℝ) where
+  is_additive : ∀ x y, f (x + y) = f x + f y
+  preserves_mul : ∀ x c, f (c * x) = c * f x
+
+section
+variable (f : ℝ → ℝ) (linf : IsLinear f)
+
+#check linf.is_additive
+#check linf.preserves_mul
+
+end
+
+def Point'' :=
+  ℝ × ℝ × ℝ
+
+def IsLinear' (f : ℝ → ℝ) :=
+  (∀ x y, f (x + y) = f x + f y) ∧ ∀ x c, f (c * x) = c * f x
+
+def PReal :=
+  { y : ℝ // 0 < y }
+
+section
+variable (x : PReal)
+
+#check x.val
+#check x.property
+#check x.1
+#check x.2
+
+end
+
+def StandardTwoSimplex' :=
+  { p : ℝ × ℝ × ℝ // 0 ≤ p.1 ∧ 0 ≤ p.2.1 ∧ 0 ≤ p.2.2 ∧ p.1 + p.2.1 + p.2.2 = 1 }
+
+def StandardSimplex' (n : ℕ) :=
+  { v : Fin n → ℝ // (∀ i : Fin n, 0 ≤ v i) ∧ (∑ i, v i) = 1 }
+
+def StdSimplex := Σ n : ℕ, StandardSimplex n
+
+section
+variable (s : StdSimplex)
+
+#check s.fst
+#check s.snd
+
+#check s.1
+#check s.2
+
+end
