@@ -130,7 +130,7 @@ instance : Nontrivial GaussInt := by
   simp
 
 example (a b : ℤ) : a = b * (a / b) + a % b :=
-  Eq.symm (Int.mul_ediv_add_emod)
+  Eq.symm (Int.mul_ediv_add_emod a b)
 
 example (a b : ℤ) : b ≠ 0 → 0 ≤ a % b :=
   Int.emod_nonneg a
