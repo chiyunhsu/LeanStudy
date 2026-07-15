@@ -18,6 +18,14 @@ variable {α : Type*} (P : α → Prop) (Q : Prop)
 --To use `h: ∀ x, P x`, use `h x` to apply the hypothesis to the variable `x`.
 --To use `h: ∃ x, P x`, use `rcases h with ⟨x, hx⟩` to destruct the existential quantifier. Then you can use `hx` to refer to the witness `x`.
 
+--Let `h : p → q`
+--` ¬ p → ¬ q` is `mt h`
+--Let `h : p ↔ q`
+--` p → q` is `h.mp`
+--` q → p` is `h.mpr`
+--` q ↔ p` is `h.symm`
+--` ¬ p ↔ ¬ q` is `h.not` or `not_congr h`
+
 --De Morgan's laws:
 example (h : ¬∃ x, P x) : ∀ x, ¬P x := by
   intro x
