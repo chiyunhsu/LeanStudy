@@ -19,7 +19,7 @@ variable {α : Type*} (P : α → Prop) (Q : Prop)
 --To use `h: ∃ x, P x`, use `rcases h with ⟨x, hx⟩` to destruct the existential quantifier. Then you can use `hx` to refer to the witness `x`.
 
 --Let `h : p → q`
---` ¬ p → ¬ q` is `mt h`
+--` ¬ q → ¬ p` is `mt h`
 --Let `h : p ↔ q`
 --` p → q` is `h.mp`
 --` q → p` is `h.mpr`
